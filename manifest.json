@@ -1,0 +1,15 @@
+{
+  "name": "Carteira 10 anos",
+  "short_name": "Carteira",
+  "description": "Aporte mensal, núcleo e satélite",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#141A22",
+  "theme_color": "#141A22",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

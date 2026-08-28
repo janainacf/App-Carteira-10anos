@@ -1,0 +1,773 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Carteira 10 anos</title>
+<meta name="theme-color" content="#141A22">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Carteira">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23141A22'/%3E%3Crect x='14' y='34' width='8' height='16' rx='2' fill='%235FA391'/%3E%3Crect x='28' y='24' width='8' height='26' rx='2' fill='%235FA391'/%3E%3Crect x='42' y='14' width='8' height='36' rx='2' fill='%235FA391'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#141A22; --panel:#1D2530; --panel-2:#252F3C; --line:#323E4D;
+    --paper:#E8E4DA; --muted:#7C8794;
+    --patina:#5FA391; --patina-dim:#2E4A45;
+    --ochre:#D4A03C; --ochre-dim:#4A3A1C;
+    --sans:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,monospace;
+    --display:'Fraunces',Georgia,serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{overflow-x:hidden}
+  body{background:var(--ink);color:var(--paper);font-family:var(--sans);
+    font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:88px;
+    text-size-adjust:100%;-webkit-text-size-adjust:100%}
+  .wrap{max-width:560px;margin:0 auto;padding:18px 14px 8px}
+  @media (max-width:400px){ .card,.verdict{padding:15px 14px}
+    .verdict-line{font-size:29px} h2{font-size:19px} }
+  .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:18px;margin-bottom:14px}
+  .note{font-size:12.5px;color:var(--muted);line-height:1.55;margin-top:7px}
+
+  .verdict{background:linear-gradient(160deg,var(--panel-2),var(--panel));
+    border:1px solid var(--patina-dim);border-radius:16px;padding:22px 20px;margin-bottom:16px}
+  .verdict.warn{border-color:var(--ochre-dim)}
+  .verdict-line{font-family:var(--display);font-weight:600;font-size:34px;line-height:1.08;
+    letter-spacing:-.015em;margin:10px 0 4px;color:var(--patina)}
+  .verdict.warn .verdict-line{color:var(--ochre)}
+  .verdict-sub{font-size:13.5px;color:var(--muted);line-height:1.55}
+  .verdict-sub b{color:var(--paper);font-weight:500}
+
+  .rank{display:flex;flex-direction:column;gap:13px;margin-top:6px}
+  .row-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .row-name{min-width:0}
+  .row-name{font-size:14px;font-weight:500}
+  .row-name span{color:var(--muted);font-family:var(--mono);font-size:11px;margin-left:6px}
+  .row-pct{font-family:var(--mono);font-size:12.5px;color:var(--muted);white-space:nowrap}
+  .track{position:relative;height:7px;background:#0E141B;border-radius:4px;margin-top:7px;border:1px solid #1A222C}
+  .fill{height:100%;background:var(--line);border-radius:3px;width:0;transition:width .5s cubic-bezier(.2,.7,.3,1)}
+  .lead .fill{background:var(--patina)}
+  .lead .row-name{color:var(--patina)}
+  .frozen .row-name,.frozen .row-pct{color:var(--ochre);opacity:.85}
+  .frozen .fill{background:var(--ochre-dim)}
+  .target{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--muted);opacity:.6;border-radius:2px}
+  .gap{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:5px}
+
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+  input,select{width:100%;min-width:0;max-width:100%;background:#111820;border:1px solid var(--line);
+    color:var(--paper);border-radius:9px;padding:11px 12px;font-family:var(--mono);font-size:15px;
+    -webkit-appearance:none;appearance:none;transition:border-color .25s,background .25s;
+    text-overflow:ellipsis}
+  input:focus,select:focus{outline:2px solid var(--patina);outline-offset:1px;border-color:transparent}
+  input.ok{border-color:var(--patina);background:#132520}
+  input::placeholder{color:#4A5563}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid3{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:8px}
+  .grid2>*,.grid3>*,.alvo-row>*{min-width:0}
+  @media (max-width:360px){ .grid3{grid-template-columns:1fr 1fr;gap:8px}
+    .grid3>div:first-child{grid-column:1 / -1} }
+
+  button{font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;
+    border-radius:9px;padding:12px 14px;border:1px solid transparent}
+  .btn{background:var(--patina);color:#0D1418;width:100%}
+  .btn:active{opacity:.85}
+  .btn-ghost{background:transparent;color:var(--muted);border-color:var(--line);width:100%}
+  .btn-danger{background:transparent;color:var(--ochre);border-color:var(--ochre-dim);width:100%}
+  .btn-sm{padding:8px 12px;font-size:12.5px;width:auto}
+
+  .pos{border-top:1px solid var(--line);padding-top:13px;margin-top:13px}
+  .pos:first-of-type{border-top:0;padding-top:0;margin-top:0}
+  .pos-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}
+  .pos-title{min-width:0;overflow-wrap:anywhere}
+  .pos-title{font-size:14px;font-weight:500}
+  .pos-val{font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+  .log{font-family:var(--mono);font-size:12.5px}
+  .log-item{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+  .log-item>span{min-width:0;overflow-wrap:anywhere}
+  .log-item:first-child{border-top:0}
+  .log-x{color:var(--muted);cursor:pointer;padding:0 4px;background:none;border:0;font-size:15px}
+  .empty{color:var(--muted);font-size:13.5px;line-height:1.6}
+  .stat-row{display:flex;justify-content:space-between;padding:8px 0;font-size:13.5px;gap:12px}
+  .stat-row>span{min-width:0;overflow-wrap:anywhere}
+  .stat-row+.stat-row{border-top:1px solid var(--line)}
+  .stat-row b{font-family:var(--mono);font-weight:500;white-space:nowrap}
+  .flag{background:var(--ochre-dim);border:1px solid var(--ochre);color:var(--ochre);
+    border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.5;margin-bottom:14px}
+
+  .rev-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+  .rev-row:first-child{border-top:0}
+  .rev-nome{font-size:14px;font-weight:500}
+  .rev-status{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px}
+  .rev-status.due,.rev-status.frz{color:var(--ochre)}
+  .quiz{background:#111820;border:1px solid var(--line);border-radius:11px;padding:15px;margin-top:11px}
+  .q{padding:11px 0;border-top:1px solid var(--line)}
+  .q:first-child{border-top:0;padding-top:0}
+  .q-txt{font-size:13.5px;line-height:1.45;margin-bottom:9px}
+  .q-btns{display:flex;gap:8px}
+  .q-btns button{flex:1;background:transparent;border:1px solid var(--line);color:var(--muted);
+    font-family:var(--mono);font-size:12.5px;padding:9px}
+  .q-btns button.sel-sim{background:var(--ochre-dim);border-color:var(--ochre);color:var(--ochre)}
+  .q-btns button.sel-nao{background:var(--patina-dim);border-color:var(--patina);color:var(--patina)}
+
+  .alvo-row{display:grid;grid-template-columns:1fr 92px;gap:10px;align-items:center;
+    padding:9px 0;border-top:1px solid var(--line)}
+  .alvo-row:first-child{border-top:0}
+  .alvo-row input{padding:8px 10px;font-size:14px;text-align:right}
+  .soma{font-family:var(--mono);font-size:12.5px;margin-top:12px;color:var(--muted)}
+  .soma.bad{color:var(--ochre)}
+
+  #toast{position:fixed;left:50%;transform:translateX(-50%) translateY(14px);bottom:100px;
+    background:var(--patina);color:#0D1418;font-size:13px;font-weight:500;padding:9px 18px;
+    border-radius:20px;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;z-index:50}
+  #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  #falha{position:fixed;left:12px;right:12px;bottom:92px;background:var(--ochre-dim);
+    border:1px solid var(--ochre);color:var(--ochre);border-radius:11px;padding:12px 14px;
+    font-size:12.5px;line-height:1.45;z-index:60;cursor:pointer;display:none}
+  #falha.on{display:block}
+
+  nav{position:fixed;bottom:0;left:0;right:0;background:rgba(20,26,34,.96);
+    backdrop-filter:blur(12px);border-top:1px solid var(--line);
+    display:flex;padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
+  nav button{flex:1;background:none;border:0;color:var(--muted);font-size:11.5px;
+    font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:9px 2px}
+  nav button.on{color:var(--patina)}
+  .hide{display:none}
+  h2{font-family:var(--display);font-weight:600;font-size:21px;letter-spacing:-.01em;margin-bottom:3px}
+  .h2sub{font-size:13px;color:var(--muted);margin-bottom:15px;line-height:1.5}
+  @media (prefers-reduced-motion:reduce){.fill,#toast,input{transition:none}}
+</style>
+
+<div class="wrap">
+  <div id="boot" class="empty" style="padding:40px 0;text-align:center">Carregando…</div>
+  <div id="app" class="hide">
+
+    <section id="v-mes">
+      <div id="flagBox"></div>
+      <div class="verdict" id="verdict">
+        <div class="eyebrow">Aporte deste mês vai para</div>
+        <div class="verdict-line" id="vLine">—</div>
+        <div class="verdict-sub" id="vSub"></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:14px">Núcleo — a linha clara marca o alvo de cada caixinha</div>
+        <div class="rank" id="rank"></div>
+        <div id="satBloco"></div>
+      </div>
+
+      <div class="card">
+        <label for="aporte">Quanto tenho para aportar este mês (aporte + proventos recebidos)</label>
+        <input id="aporte" type="number" inputmode="decimal" step="10" placeholder="750">
+        <div id="quantas" class="empty" style="margin-top:11px"></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:10px">Posição</div>
+        <div class="stat-row"><span>Total aportado por você</span><b id="sAportado">—</b></div>
+        <div class="stat-row"><span>Valor de mercado hoje</span><b id="sMercado">—</b></div>
+        <div class="stat-row"><span>Valorização das ações</span><b id="sResult">—</b></div>
+        <div class="stat-row"><span>Proventos líquidos recebidos</span><b id="sProv">—</b></div>
+        <div class="stat-row"><span>Satélite hoje (valor de mercado)</span><b id="sSat">—</b></div>
+        <div class="stat-row"><span>Satélite no que você aportou</span><b id="sSatAp">—</b></div>
+        <p class="note">Não some valorização com proventos: quando você reinveste um provento, ele volta como compra e já está contado em “total aportado”. A primeira linha é o que as ações fizeram de preço; a segunda é o caixa que entrou.</p>
+        <p class="note">No começo, o satélite por valor de mercado oscila muito — uma única compra pode jogá-lo para 50%. A linha de baixo é a que você realmente controla: a proporção do seu dinheiro que foi para lá desde o primeiro mês.</p>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:4px">Revisão — uma caixinha por vez</div>
+        <p class="note" style="margin-bottom:6px">Quatro perguntas por empresa. Duas respostas “sim” congelam novos aportes ali — o dinheiro passa para a próxima caixinha atrasada, e nada é vendido.</p>
+        <div id="revList"></div>
+      </div>
+    </section>
+
+    <section id="v-carteira" class="hide">
+      <h2>Carteira</h2>
+      <p class="h2sub">Atualize a cotação uma vez por mês, no mesmo dia. Salva sozinho — o campo pisca em verde e aparece o aviso embaixo.</p>
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:14px">Núcleo</div>
+        <div id="editNucleo"></div>
+      </div>
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:14px">Satélite — teto de <span id="tetoLbl">15</span>%</div>
+        <div id="editSatelite"></div>
+      </div>
+    </section>
+
+    <section id="v-registro" class="hide">
+      <h2>Registro</h2>
+      <p class="h2sub">Ao escolher o papel, o preço vem preenchido com a última cotação — corrija para o preço que você pagou de verdade.</p>
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:12px">Nova compra</div>
+        <label for="cTicker">Papel</label>
+        <select id="cTicker"></select>
+        <div class="grid2" style="margin-top:10px">
+          <div><label for="cQtd">Quantidade</label><input id="cQtd" type="number" inputmode="decimal" step="1"></div>
+          <div><label for="cPreco">Preço pago por ação</label><input id="cPreco" type="number" inputmode="decimal" step="0.01"></div>
+        </div>
+        <div style="margin-top:10px"><label for="cData">Data</label><input id="cData" type="date"></div>
+        <div id="cTotal" class="note"></div>
+        <button class="btn" style="margin-top:13px" onclick="addCompra()">Registrar compra</button>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:12px">Novo provento</div>
+        <label for="pTicker">Papel</label>
+        <select id="pTicker"></select>
+        <div style="margin-top:10px">
+          <label for="pTipo">Tipo</label>
+          <select id="pTipo">
+            <option value="dividendo">Dividendo (isento)</option>
+            <option value="jcp">JCP (−17,5%)</option>
+            <option value="bdr">Dividendo de BDR (−30%)</option>
+          </select>
+        </div>
+        <div class="grid2" style="margin-top:10px">
+          <div><label for="pBruto">Valor bruto</label><input id="pBruto" type="number" inputmode="decimal" step="0.01"></div>
+          <div><label for="pData">Data</label><input id="pData" type="date"></div>
+        </div>
+        <div id="pLiq" class="note"></div>
+        <button class="btn" style="margin-top:13px" onclick="addProvento()">Registrar provento</button>
+      </div>
+
+      <div class="card"><div class="eyebrow" style="margin-bottom:10px">Compras</div><div class="log" id="logCompras"></div></div>
+      <div class="card"><div class="eyebrow" style="margin-bottom:10px">Proventos</div><div class="log" id="logProventos"></div></div>
+    </section>
+
+    <section id="v-ajustes" class="hide">
+      <h2>Ajustes</h2>
+      <p class="h2sub">As decisões que você toma uma vez e não mexe mais. Depois disso o app só executa.</p>
+
+      <div class="card">
+        <label for="cfgBanco">Qual papel ocupa a caixinha do banco</label>
+        <select id="cfgBanco">
+          <option value="ITUB4">ITUB4 — Itaú</option>
+          <option value="ITSA4">ITSA4 — Itaúsa</option>
+        </select>
+        <p class="note">Ter as duas é falsa diversificação: a Itaúsa é, em boa parte, o próprio Itaú.</p>
+
+        <div style="margin-top:18px">
+          <label for="cfgAporte">Aporte mensal planejado</label>
+          <input id="cfgAporte" type="number" inputmode="decimal" step="50">
+          <p class="note">Só preenche o campo da aba Mês por padrão.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:6px">Alvo de cada caixinha</div>
+        <p class="note" style="margin-bottom:12px">Iguais em 20% significa não apostar em qual das cinco vai melhor nos próximos dez anos. Mudar isso é fazer uma previsão — dá para fazer, mas saiba que é o que está fazendo.</p>
+        <div id="alvos"></div>
+        <div class="soma" id="somaAlvos"></div>
+        <button class="btn-ghost" style="margin-top:12px" onclick="resetAlvos()">Voltar para 20% em cada</button>
+      </div>
+
+      <div class="card">
+        <label for="cfgTeto">Teto do satélite, em % da carteira toda</label>
+        <input id="cfgTeto" type="number" inputmode="decimal" step="1" min="0" max="50">
+        <p class="note" id="tetoNota"></p>
+        <div class="eyebrow" style="margin:18px 0 6px">Papéis do satélite</div>
+        <div id="editSatTickers"></div>
+        <button class="btn-ghost" style="margin-top:12px" onclick="addSat()">Adicionar papel ao satélite</button>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:6px">Cópia de segurança</div>
+        <p class="note" style="margin-bottom:12px">Uma vez por mês, depois de registrar a compra, copie este texto e guarde onde quiser — e-mail para você mesma serve. É o que garante que dez anos de registro não dependam de um servidor.</p>
+        <button class="btn" onclick="exportar()">Mostrar e copiar meus dados</button>
+        <textarea id="backup" class="hide" rows="6" style="width:100%;margin-top:11px;background:#111820;
+          border:1px solid var(--line);color:var(--paper);border-radius:9px;padding:11px;
+          font-family:var(--mono);font-size:11px;resize:vertical"></textarea>
+        <div style="margin-top:11px"><button class="btn-ghost" onclick="importar()">Restaurar a partir de um texto colado</button></div>
+        <p class="note">Para restaurar: cole o texto salvo na caixa acima e toque em Restaurar.</p>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:10px">Dados</div>
+        <div class="stat-row" style="padding-top:0"><span>Estado do salvamento</span><b id="estado" style="color:var(--patina)">salvo</b></div>
+        <p class="empty" style="margin:12px 0">Fica salvo neste aparelho, neste navegador. Apagar não tem volta.</p>
+        <button class="btn-danger" onclick="zerar()">Apagar todos os dados</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div id="toast">Salvo</div>
+<div id="falha" onclick="gravar()"></div>
+
+<nav>
+  <button id="n-mes" class="on" onclick="go('mes')">Mês</button>
+  <button id="n-carteira" onclick="go('carteira')">Carteira</button>
+  <button id="n-registro" onclick="go('registro')">Registro</button>
+  <button id="n-ajustes" onclick="go('ajustes')">Ajustes</button>
+</nav>
+
+<script>
+const KEY='carteira10anos:v3';
+const CAIXINHAS=[
+  {id:'banco',nome:'Banco',ticker:'ITUB4'},
+  {id:'seguros',nome:'Seguros',ticker:'BBSE3'},
+  {id:'telecom',nome:'Telecom',ticker:'VIVT3'},
+  {id:'transmissao',nome:'Transmissão',ticker:'TAEE11'},
+  {id:'energia',nome:'Energia',ticker:'EGIE3'}
+];
+const RETENCAO={dividendo:0,jcp:.175,bdr:.30};
+const PERGUNTAS=[
+  'O lucro caiu de forma relevante e que não parece pontual?',
+  'A dívida cresceu a ponto de preocupar?',
+  'Cortaram ou reduziram a política de distribuição?',
+  'Mudou algo estrutural — regulação, concessão, controle?'
+];
+let S=null, abertaRev=null;
+
+const brl=n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const pct=n=>n.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
+const hoje=()=>new Date().toISOString().slice(0,10);
+const dbr=s=>s?s.split('-').reverse().join('/'):'';
+const mesesDesde=d=>(Date.now()-new Date(d).getTime())/(1000*60*60*24*30.44);
+
+function novo(){
+  return{
+    config:{tickerBanco:'ITUB4',teto:15,aportePlanejado:750},
+    nucleo:CAIXINHAS.map(c=>({...c,qtd:0,preco:0,alvo:20,congelada:false,revisao:null,historico:[]})),
+    satelite:[{id:'s1',ticker:'AURA33',qtd:0,preco:0},
+              {id:'s2',ticker:'PETR4',qtd:0,preco:0},
+              {id:'s3',ticker:'BBAS3',qtd:0,preco:0}],
+    compras:[],proventos:[]
+  };
+}
+
+/* Guarda os dados onde der: dentro do Claude usa o armazenamento do artefato;
+   como arquivo solto no navegador, usa o do próprio navegador. */
+const temStorageClaude = typeof window.storage!=='undefined' && window.storage
+  && typeof window.storage.get==='function';
+const COFRE={
+  async ler(){
+    if(temStorageClaude){ const r=await window.storage.get(KEY); return r&&r.value?r.value:null; }
+    return window.localStorage.getItem(KEY);
+  },
+  async gravar(txt){
+    if(temStorageClaude){ await window.storage.set(KEY,txt); return; }
+    window.localStorage.setItem(KEY,txt);
+  },
+  async apagar(){
+    if(temStorageClaude){ await window.storage.delete(KEY); return; }
+    window.localStorage.removeItem(KEY);
+  }
+};
+
+/* ---------- salvamento com fila, repetição e aviso honesto ---------- */
+let timerSalvar=null, msgPend=null, falhou=false;
+let tToast;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('on');
+  clearTimeout(tToast); tToast=setTimeout(()=>t.classList.remove('on'),1700);
+}
+function piscar(el){ if(!el)return; el.classList.add('ok'); setTimeout(()=>el.classList.remove('ok'),900); }
+function avisoFalha(on,txt){
+  const f=document.getElementById('falha');
+  f.classList.toggle('on',!!on);
+  if(on)f.innerHTML=txt;
+}
+function salvar(msg){
+  render();
+  if(msg) msgPend=msg;
+  clearTimeout(timerSalvar);
+  timerSalvar=setTimeout(()=>gravar(),700);
+}
+function setEstado(e){
+  const el=document.getElementById('estado');
+  if(!el)return;
+  const map={salvo:['salvo','var(--patina)'],salvando:['salvando…','var(--muted)'],
+             retry:['tentando de novo…','var(--ochre)'],erro:['não salvo','var(--ochre)']};
+  const [txt,cor]=map[e]||map.salvo;
+  el.textContent=txt; el.style.color=cor;
+}
+async function gravar(tentativa=0){
+  clearTimeout(timerSalvar);
+  setEstado(tentativa?'retry':'salvando');
+  try{
+    await COFRE.gravar(JSON.stringify(S));
+    if(falhou){ falhou=false; avisoFalha(false); }
+    setEstado('salvo');
+    toast(msgPend||'Salvo'); msgPend=null;
+  }catch(e){
+    if(tentativa<4){ console.warn('gravação falhou, tentando de novo',tentativa+1);
+      setTimeout(()=>gravar(tentativa+1),1200*(tentativa+1)); return; }
+    console.error('storage.set falhou depois de 5 tentativas',e);
+    falhou=true; setEstado('erro');
+    avisoFalha(true,'<b>Não consegui salvar.</b> Seus dados continuam aqui na tela e nada se perdeu — mas se você fechar agora, some. Toque aqui para tentar de novo, ou vá em Ajustes › Cópia de segurança e guarde o texto.');
+  }
+}
+
+async function carregar(){
+  try{ const t=await COFRE.ler(); S=t?JSON.parse(t):novo(); }
+  catch(e){ S=novo(); }
+  if(!S||!S.config) S=novo();
+  S.nucleo.forEach(c=>{ if(!c.historico)c.historico=[]; if(c.congelada===undefined)c.congelada=false;
+                        if(typeof c.alvo!=='number')c.alvo=20; });
+  document.getElementById('boot').classList.add('hide');
+  document.getElementById('app').classList.remove('hide');
+  document.getElementById('cData').value=hoje();
+  document.getElementById('pData').value=hoje();
+  bind(); render(); preencherPreco();
+}
+
+/* ---------- cálculo ---------- */
+function calc(){
+  const nucleo=S.nucleo.map(c=>({...c,valor:(+c.qtd||0)*(+c.preco||0)}));
+  const sat=S.satelite.filter(c=>c.ticker).map(c=>({...c,valor:(+c.qtd||0)*(+c.preco||0)}));
+  const vN=nucleo.reduce((a,b)=>a+b.valor,0);
+  const vS=sat.reduce((a,b)=>a+b.valor,0);
+  const total=vN+vS;
+  const somaAlvos=nucleo.reduce((a,b)=>a+(+b.alvo||0),0)||100;
+  nucleo.forEach(c=>{
+    c.alvoNorm=(+c.alvo||0)/somaAlvos*100;
+    c.pctNucleo=vN>0?c.valor/vN*100:0;
+    c.distancia=c.pctNucleo-c.alvoNorm;
+    const w=c.alvoNorm/100;
+    c.paraAlvo = w<1 ? Math.max(0,(w*vN-c.valor)/(1-w)) : 0;
+  });
+  const livres=nucleo.filter(c=>!c.congelada);
+  const fila=[...(livres.length?livres:nucleo)].sort((a,b)=>a.distancia-b.distancia);
+  const empatadas=fila.filter(c=>Math.abs(c.distancia-fila[0].distancia)<0.05);
+  const pctSat=total>0?vS/total*100:0;
+
+  const tickersSat=new Set(S.satelite.map(x=>x.ticker).filter(Boolean));
+  const apTotal=S.compras.reduce((a,c)=>a+c.qtd*c.preco,0);
+  const apSat=S.compras.filter(c=>tickersSat.has(c.ticker)).reduce((a,c)=>a+c.qtd*c.preco,0);
+  const pctSatAportado=apTotal>0?apSat/apTotal*100:0;
+
+  return{nucleo,sat,vN,vS,total,fila,empatadas,pctSat,pctSatAportado,apTotal,somaAlvos,
+         estourou:pctSat>(+S.config.teto||0)&&vS>0};
+}
+
+/* ---------- render ---------- */
+function render(){
+  const k=calc();
+  document.getElementById('flagBox').innerHTML = k.estourou
+    ? `<div class="flag"><b>Satélite acima do teto.</b> Está em ${pct(k.pctSat)} do valor de mercado, contra o limite de ${S.config.teto}%. Nenhum aporte novo vai para lá até voltar para dentro.</div>` : '';
+
+  const alvoCx=k.fila[0];
+  document.getElementById('verdict').classList.toggle('warn',k.estourou);
+  document.getElementById('vLine').textContent=alvoCx.ticker;
+
+  const congeladas=k.nucleo.filter(c=>c.congelada);
+  let sub;
+  if(k.vN===0){
+    sub = k.empatadas.length>1
+      ? `Carteira ainda vazia — <b>${k.empatadas.length} caixinhas empatadas em zero</b>. Comece por qualquer uma; da segunda compra em diante a regra decide sozinha.`
+      : 'Carteira ainda vazia. Comece por aqui.';
+  }else if(k.empatadas.length>1){
+    sub = `Empate: <b>${k.empatadas.map(c=>c.ticker).join(', ')}</b> estão à mesma distância do alvo. Qualquer uma serve — o app sugere a primeira.`;
+  }else{
+    sub = `<b>${alvoCx.nome}</b> está em ${pct(alvoCx.pctNucleo)} do núcleo, contra um alvo de ${pct(alvoCx.alvoNorm)}. É a mais atrasada — faltam ${brl(alvoCx.paraAlvo)} para emparelhar.`;
+  }
+  if(congeladas.length) sub += ` <span style="color:var(--ochre)">${congeladas.map(c=>c.ticker).join(' e ')} ${congeladas.length>1?'estão congeladas e ficam':'está congelada e fica'} fora da fila.</span>`;
+  document.getElementById('vSub').innerHTML=sub;
+
+  const ordenado=[...k.nucleo].sort((a,b)=>a.distancia-b.distancia);
+  const maxPct=Math.max(...ordenado.map(c=>Math.max(c.pctNucleo,c.alvoNorm)),1)*1.08;
+  document.getElementById('rank').innerHTML=ordenado.map(c=>{
+    const lead=c.id===alvoCx.id&&!c.congelada;
+    return `<div class="${lead?'lead':''}${c.congelada?' frozen':''}">
+      <div class="row-top">
+        <div class="row-name">${c.nome}<span>${c.ticker}</span></div>
+        <div class="row-pct">${pct(c.pctNucleo)} de ${pct(c.alvoNorm)} · ${brl(c.valor)}</div>
+      </div>
+      <div class="track">
+        <div class="fill" style="width:${Math.min(100,c.pctNucleo/maxPct*100).toFixed(1)}%"></div>
+        <div class="target" style="left:${Math.min(99,c.alvoNorm/maxPct*100).toFixed(1)}%"></div>
+      </div>
+      <div class="gap">${c.congelada?'congelada — não recebe aporte'
+        :(k.vN===0?'sem posição':(c.paraAlvo>0?'faltam '+brl(c.paraAlvo)+' para o alvo':'no alvo ou acima'))}</div>
+    </div>`;
+  }).join('');
+
+  const comSat=k.sat.filter(c=>c.valor>0);
+  document.getElementById('satBloco').innerHTML = comSat.length ? `
+    <div style="border-top:1px solid var(--line);margin-top:17px;padding-top:15px">
+      <div class="eyebrow" style="margin-bottom:11px">Satélite — sem alvo, só teto</div>
+      ${comSat.map(c=>`<div class="stat-row"><span>${c.ticker}</span>
+        <b>${brl(c.valor)} · ${pct(k.total>0?c.valor/k.total*100:0)}</b></div>`).join('')}
+      <div class="gap" style="margin-top:9px">soma ${brl(k.vS)} — ${pct(k.pctSat)} da carteira, teto de ${S.config.teto}%</div>
+    </div>` : '';
+
+  const ap=+document.getElementById('aporte').value||0;
+  const qEl=document.getElementById('quantas');
+  if(ap>0&&alvoCx.preco>0){
+    const n=Math.floor(ap/alvoCx.preco);
+    qEl.innerHTML=n>0
+      ? `Dá para comprar <b style="color:var(--patina)">${n} ${n===1?'ação':'ações'} de ${alvoCx.ticker}</b> a ${brl(alvoCx.preco)}. Sobra ${brl(ap-n*alvoCx.preco)} para o mês que vem.`
+      : `Não dá para uma ação inteira de ${alvoCx.ticker} a ${brl(alvoCx.preco)}. Acumule para o mês que vem.`;
+  }else if(ap>0){ qEl.textContent='Preencha a cotação de '+alvoCx.ticker+' na aba Carteira para ver quantas ações isso compra.'; }
+  else qEl.textContent='';
+
+  const provLiq=S.proventos.reduce((a,p)=>a+p.bruto*(1-RETENCAO[p.tipo]),0);
+  const res=k.total-k.apTotal;
+  document.getElementById('sAportado').textContent=brl(k.apTotal);
+  document.getElementById('sMercado').textContent=brl(k.total);
+  const rEl=document.getElementById('sResult');
+  rEl.textContent=(res>=0?'+':'')+brl(res);
+  rEl.style.color=k.apTotal===0?'var(--paper)':(res>=0?'var(--patina)':'var(--ochre)');
+  document.getElementById('sProv').textContent=brl(provLiq);
+  document.getElementById('sSat').textContent=k.total>0?`${pct(k.pctSat)} de ${S.config.teto}%`:'—';
+  document.getElementById('sSatAp').textContent=k.apTotal>0?`${pct(k.pctSatAportado)} de ${S.config.teto}%`:'—';
+
+  renderRevisao(); renderEditores(); renderAlvos(k); renderLogs(); renderSelects();
+  document.getElementById('tetoLbl').textContent=S.config.teto;
+  const t=+S.config.teto||0;
+  document.getElementById('tetoNota').innerHTML=
+    `Não existe número oficial. O que ele significa na prática: se o satélite inteiro cair pela metade, você perde <b style="color:var(--paper)">${pct(t/2)}</b> da carteira toda. Escolha o número por essa frase, não por convenção.`;
+}
+
+function renderAlvos(k){
+  document.getElementById('alvos').innerHTML=S.nucleo.map((c,i)=>`
+    <div class="alvo-row">
+      <div><div class="rev-nome">${c.nome}</div><div class="rev-status">${c.ticker}</div></div>
+      <input type="number" inputmode="decimal" step="1" min="0" max="100" value="${c.alvo}"
+             onchange="setAlvo(${i},this.value,this)">
+    </div>`).join('');
+  const s=k.somaAlvos;
+  const el=document.getElementById('somaAlvos');
+  el.textContent = Math.abs(s-100)<0.01 ? 'Soma: 100%' : `Soma: ${pct(s)} — o app normaliza para 100%, mas vale acertar.`;
+  el.classList.toggle('bad',Math.abs(s-100)>=0.01);
+}
+function setAlvo(i,v,el){
+  S.nucleo[i].alvo=Math.max(0,parseFloat(v)||0);
+  piscar(el); salvar(`Alvo de ${S.nucleo[i].ticker} salvo`);
+}
+function resetAlvos(){ S.nucleo.forEach(c=>c.alvo=20); salvar('Alvos voltaram para 20%'); }
+
+function renderRevisao(){
+  document.getElementById('revList').innerHTML=S.nucleo.map(c=>{
+    let st='nunca revisada', cls='due';
+    if(c.congelada){ st='congelada — aportes suspensos'; cls='frz'; }
+    else if(c.revisao){
+      const m=Math.floor(mesesDesde(c.revisao));
+      st = m>=12 ? `revisada há ${m} meses — está na hora`
+                 : `revisada em ${dbr(c.revisao)} · próxima em ${12-m} ${12-m===1?'mês':'meses'}`;
+      cls = m>=12?'due':'';
+    }
+    const aberta=abertaRev===c.id;
+    return `<div class="rev-row">
+        <div><div class="rev-nome">${c.ticker}</div><div class="rev-status ${cls}">${st}</div></div>
+        <button class="btn-ghost btn-sm" onclick="abrirRev('${c.id}')">${aberta?'Fechar':(c.congelada?'Reavaliar':'Revisar')}</button>
+      </div>` + (aberta?quiz(c):'');
+  }).join('');
+}
+function quiz(c){
+  const r=(window._resp&&window._resp[c.id])||[null,null,null,null];
+  return `<div class="quiz">
+    ${PERGUNTAS.map((p,i)=>`<div class="q"><div class="q-txt">${p}</div>
+      <div class="q-btns">
+        <button class="${r[i]===true?'sel-sim':''}" onclick="resp('${c.id}',${i},true)">Sim</button>
+        <button class="${r[i]===false?'sel-nao':''}" onclick="resp('${c.id}',${i},false)">Não</button>
+      </div></div>`).join('')}
+    <button class="btn" style="margin-top:14px" onclick="fecharRev('${c.id}')">Concluir revisão</button>
+    ${c.congelada?`<button class="btn-ghost" style="margin-top:9px" onclick="descongelar('${c.id}')">Descongelar ${c.ticker}</button>`:''}
+    ${c.historico.length?`<div class="note" style="margin-top:12px">Revisões anteriores: ${c.historico.map(h=>dbr(h.data)+' ('+h.sim+' sim)').join(' · ')}</div>`:''}
+  </div>`;
+}
+function abrirRev(id){
+  abertaRev = abertaRev===id?null:id;
+  window._resp=window._resp||{}; if(!window._resp[id])window._resp[id]=[null,null,null,null];
+  render();
+}
+function resp(id,i,v){ window._resp[id][i]=v; render(); }
+function fecharRev(id){
+  const c=S.nucleo.find(x=>x.id===id);
+  const r=(window._resp&&window._resp[id])||[];
+  if(r.length<4||r.some(x=>x===null)){ toast('Responda as quatro'); return; }
+  const sim=r.filter(Boolean).length;
+  c.revisao=hoje(); c.historico.push({data:hoje(),sim});
+  c.congelada = sim>=2;
+  abertaRev=null; window._resp[id]=null;
+  salvar(sim>=2?`${c.ticker} congelada — ${sim} sinais`:`${c.ticker} revisada — segue na fila`);
+}
+function descongelar(id){
+  const c=S.nucleo.find(x=>x.id===id);
+  c.congelada=false; abertaRev=null; salvar(`${c.ticker} de volta à fila`);
+}
+
+function linhaPos(arr,i,rotulo,camada){
+  const p=arr[i];
+  return `<div class="pos">
+    <div class="pos-head"><div class="pos-title">${rotulo||'<span style="color:var(--muted)">sem ticker — preencha ou remova</span>'}</div>
+      <div class="pos-val">${brl((+p.qtd||0)*(+p.preco||0))}</div></div>
+    <div class="grid3">
+      <div><label>Papel</label><input value="${p.ticker}" placeholder="TICKER" onchange="setPos('${camada}',${i},'ticker',this.value.toUpperCase().trim(),this)"></div>
+      <div><label>Qtd</label><input type="number" inputmode="decimal" value="${p.qtd||''}" onchange="setPos('${camada}',${i},'qtd',this.value,this)"></div>
+      <div><label>Cotação</label><input type="number" inputmode="decimal" step="0.01" value="${p.preco||''}" onchange="setPos('${camada}',${i},'preco',this.value,this)"></div>
+    </div></div>`;
+}
+function renderEditores(){
+  document.getElementById('editNucleo').innerHTML=S.nucleo.map((c,i)=>linhaPos(S.nucleo,i,c.nome,'nucleo')).join('');
+  document.getElementById('editSatelite').innerHTML=S.satelite.length
+    ? S.satelite.map((c,i)=>linhaPos(S.satelite,i,c.ticker,'satelite')).join('')
+    : '<p class="empty">Nenhum papel no satélite.</p>';
+  document.getElementById('editSatTickers').innerHTML=S.satelite.map((c,i)=>
+    `<div class="pos"><div class="grid2">
+      <div><label>Papel</label><input value="${c.ticker}" placeholder="TICKER" onchange="setPos('satelite',${i},'ticker',this.value.toUpperCase().trim(),this)"></div>
+      <div style="display:flex;align-items:flex-end"><button class="btn-ghost" onclick="delSat(${i})">Remover</button></div>
+    </div></div>`).join('')||'<p class="empty">Nenhum papel no satélite.</p>';
+}
+function renderSelects(){
+  const lista=[...S.nucleo,...S.satelite].filter(p=>p.ticker);
+  const opts=lista.map(p=>`<option value="${p.ticker}">${p.ticker}</option>`).join('');
+  ['cTicker','pTicker'].forEach(id=>{
+    const el=document.getElementById(id), keep=el.value;
+    el.innerHTML=opts;
+    if(keep&&lista.some(p=>p.ticker===keep)) el.value=keep;
+  });
+}
+function renderLogs(){
+  const c=[...S.compras].reverse();
+  document.getElementById('logCompras').innerHTML=c.length?c.map((x,i)=>`
+    <div class="log-item"><span>${dbr(x.data)} · ${x.ticker} · ${x.qtd}un a ${brl(x.preco)}</span>
+    <span>${brl(x.qtd*x.preco)} <button class="log-x" onclick="delCompra(${S.compras.length-1-i})" aria-label="Excluir">×</button></span></div>`).join('')
+    : '<p class="empty">Nenhuma compra registrada.</p>';
+  const p=[...S.proventos].reverse();
+  document.getElementById('logProventos').innerHTML=p.length?p.map((x,i)=>{
+    const liq=x.bruto*(1-RETENCAO[x.tipo]);
+    const tag=x.tipo==='dividendo'?'div':x.tipo==='jcp'?'jcp':'bdr';
+    return `<div class="log-item"><span>${dbr(x.data)} · ${x.ticker} · ${tag}</span>
+    <span>${brl(liq)}${x.tipo!=='dividendo'?` <span style="color:var(--muted)">de ${brl(x.bruto)}</span>`:''} <button class="log-x" onclick="delProvento(${S.proventos.length-1-i})" aria-label="Excluir">×</button></span></div>`;
+  }).join('') : '<p class="empty">Nenhum provento registrado.</p>';
+}
+
+function setPos(camada,i,campo,valor,el){
+  S[camada][i][campo]= campo==='ticker'?valor:(parseFloat(valor)||0);
+  piscar(el);
+  const nome=S[camada][i].ticker||'papel';
+  salvar(campo==='preco'?`Cotação de ${nome} salva`:campo==='qtd'?`Quantidade de ${nome} salva`:'Salvo');
+  preencherPreco();
+}
+function preencherPreco(){
+  const t=document.getElementById('cTicker').value;
+  const p=[...S.nucleo,...S.satelite].find(x=>x.ticker===t);
+  const campo=document.getElementById('cPreco');
+  if(p&&p.preco>0&&!campo.dataset.tocado) campo.value=p.preco;
+  totalCompra();
+}
+function totalCompra(){
+  const q=parseFloat(document.getElementById('cQtd').value)||0;
+  const p=parseFloat(document.getElementById('cPreco').value)||0;
+  document.getElementById('cTotal').textContent = q>0&&p>0 ? `Total da compra: ${brl(q*p)}` : '';
+}
+const ehBDR=t=>/3[1-5]$/.test((t||'').trim());
+function calcLiq(){
+  const b=parseFloat(document.getElementById('pBruto').value)||0;
+  const t=document.getElementById('pTipo').value;
+  const tk=document.getElementById('pTicker').value;
+  const el=document.getElementById('pLiq');
+  let txt = b>0 ? `Cai na conta: ${brl(b*(1-RETENCAO[t]))}${t!=='dividendo'?` (${brl(b*RETENCAO[t])} de imposto)`:''}` : '';
+  if(tk){
+    if(t==='bdr'&&!ehBDR(tk)) txt+=`<br><span style="color:var(--ochre)">${tk} não é BDR — os 30% não se aplicam. Use Dividendo ou JCP.</span>`;
+    if(t!=='bdr'&&ehBDR(tk)) txt+=`<br><span style="color:var(--ochre)">${tk} é BDR — o desconto costuma ser de 30%.</span>`;
+  }
+  el.innerHTML=txt;
+}
+function tipoPadrao(){
+  const tk=document.getElementById('pTicker').value;
+  document.getElementById('pTipo').value = ehBDR(tk)?'bdr':'dividendo';
+  calcLiq();
+}
+function addCompra(){
+  const t=cTicker.value, q=parseFloat(cQtd.value), p=parseFloat(cPreco.value), d=cData.value||hoje();
+  if(!t||!(q>0)||!(p>0)){ toast('Preencha quantidade e preço'); return; }
+  S.compras.push({data:d,ticker:t,qtd:q,preco:p});
+  const alvo=[...S.nucleo,...S.satelite].find(x=>x.ticker===t);
+  if(alvo){ alvo.qtd=(+alvo.qtd||0)+q; if(!alvo.preco)alvo.preco=p; }
+  cQtd.value=''; cPreco.dataset.tocado='';
+  salvar(`${q} de ${t} registradas`); preencherPreco();
+}
+function addProvento(){
+  const t=pTicker.value, b=parseFloat(pBruto.value), d=pData.value||hoje();
+  if(!t||!(b>0)){ toast('Preencha o valor bruto'); return; }
+  S.proventos.push({data:d,ticker:t,tipo:pTipo.value,bruto:b});
+  pBruto.value=''; calcLiq(); salvar(`Provento de ${t} registrado`);
+}
+function delCompra(i){
+  const c=S.compras[i];
+  const alvo=[...S.nucleo,...S.satelite].find(x=>x.ticker===c.ticker);
+  if(alvo)alvo.qtd=Math.max(0,(+alvo.qtd||0)-c.qtd);
+  S.compras.splice(i,1); salvar('Compra excluída');
+}
+function delProvento(i){ S.proventos.splice(i,1); salvar('Provento excluído'); }
+function addSat(){ S.satelite.push({id:'s'+Date.now(),ticker:'',qtd:0,preco:0}); salvar('Linha nova — digite o ticker'); }
+function delSat(i){ const t=S.satelite[i].ticker||'linha'; S.satelite.splice(i,1); salvar(`${t} removido`); }
+function exportar(){
+  const ta=document.getElementById('backup');
+  ta.classList.remove('hide');
+  ta.value=JSON.stringify(S);
+  ta.focus(); ta.select();
+  try{
+    navigator.clipboard.writeText(ta.value)
+      .then(()=>toast('Copiado — cole em algum lugar seguro'))
+      .catch(()=>toast('Selecione o texto e copie'));
+  }catch(e){ toast('Selecione o texto e copie'); }
+}
+function importar(){
+  const ta=document.getElementById('backup');
+  ta.classList.remove('hide');
+  const txt=ta.value.trim();
+  if(!txt){ ta.focus(); toast('Cole o texto salvo na caixa'); return; }
+  let dados;
+  try{ dados=JSON.parse(txt); }catch(e){ toast('Texto inválido'); return; }
+  if(!dados||!dados.config||!Array.isArray(dados.nucleo)){ toast('Texto não parece ser desta ferramenta'); return; }
+  if(!confirm('Substituir tudo que está aqui pelo texto colado?'))return;
+  S=dados;
+  S.nucleo.forEach(c=>{ if(!c.historico)c.historico=[]; if(c.congelada===undefined)c.congelada=false;
+                        if(typeof c.alvo!=='number')c.alvo=20; });
+  if(!Array.isArray(S.satelite))S.satelite=[];
+  if(!Array.isArray(S.compras))S.compras=[];
+  if(!Array.isArray(S.proventos))S.proventos=[];
+  abertaRev=null; window._resp={};
+  bind(); salvar('Dados restaurados');
+}
+async function zerar(){
+  if(!confirm('Apagar tudo? Não tem volta.'))return;
+  S=novo(); abertaRev=null; window._resp={};
+  try{ await COFRE.apagar(); }catch(e){}
+  bind(); salvar('Dados apagados');
+}
+function go(v){
+  ['mes','carteira','registro','ajustes'].forEach(x=>{
+    document.getElementById('v-'+x).classList.toggle('hide',x!==v);
+    document.getElementById('n-'+x).classList.toggle('on',x===v);
+  });
+  window.scrollTo(0,0);
+}
+function bind(){
+  const g=id=>document.getElementById(id);
+  g('aporte').value=S.config.aportePlanejado||'';
+  g('cfgBanco').value=S.config.tickerBanco;
+  g('cfgTeto').value=S.config.teto;
+  g('cfgAporte').value=S.config.aportePlanejado;
+  g('aporte').addEventListener('input',render);
+  g('cTicker').addEventListener('change',()=>{ g('cPreco').dataset.tocado=''; preencherPreco(); });
+  g('cPreco').addEventListener('input',()=>{ g('cPreco').dataset.tocado='1'; totalCompra(); });
+  g('cQtd').addEventListener('input',totalCompra);
+  g('pBruto').addEventListener('input',calcLiq);
+  g('pTipo').addEventListener('change',calcLiq);
+  g('pTicker').addEventListener('change',tipoPadrao);
+  g('cfgTeto').addEventListener('change',e=>{S.config.teto=parseFloat(e.target.value)||0;piscar(e.target);salvar('Teto salvo');});
+  g('cfgAporte').addEventListener('change',e=>{S.config.aportePlanejado=parseFloat(e.target.value)||0;piscar(e.target);salvar('Aporte salvo');});
+  g('cfgBanco').addEventListener('change',e=>{
+    S.config.tickerBanco=e.target.value; S.nucleo[0].ticker=e.target.value;
+    salvar(`Caixinha do banco: ${e.target.value}`);
+  });
+  window.addEventListener('beforeunload',e=>{ if(falhou){ e.preventDefault(); e.returnValue=''; } });
+}
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+carregar();
+</script>
