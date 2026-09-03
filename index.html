@@ -290,6 +290,7 @@
       <div class="card">
         <div class="eyebrow" style="margin-bottom:10px">Dados</div>
         <div class="stat-row" style="padding-top:0"><span>Estado do salvamento</span><b id="estado" style="color:var(--patina)">salvo</b></div>
+        <div class="stat-row"><span>Versão do app</span><b id="versao">—</b></div>
         <p class="empty" style="margin:12px 0">Fica salvo neste aparelho, neste navegador. Apagar não tem volta.</p>
         <button class="btn-danger" onclick="zerar()">Apagar todos os dados</button>
       </div>
@@ -308,6 +309,7 @@
 </nav>
 
 <script>
+const VERSAO='2026.08.28';
 const KEY='carteira10anos:v3';
 const CAIXINHAS=[
   {id:'banco',nome:'Banco',ticker:'ITUB4'},
@@ -769,5 +771,6 @@ function bind(){
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
+document.getElementById('versao').textContent=VERSAO;
 carregar();
 </script>
