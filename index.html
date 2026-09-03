@@ -114,6 +114,24 @@
     font-family:var(--mono);font-size:12.5px;padding:9px}
   .q-btns button.sel-sim{background:var(--ochre-dim);border-color:var(--ochre);color:var(--ochre)}
   .q-btns button.sel-nao{background:var(--patina-dim);border-color:var(--patina);color:var(--patina)}
+  .quiz textarea{width:100%;min-width:0;background:#0E141B;border:1px solid var(--line);
+    color:var(--paper);border-radius:9px;padding:10px 11px;font-family:var(--sans);
+    font-size:13.5px;line-height:1.5;resize:vertical}
+  .quiz textarea:focus{outline:2px solid var(--patina);outline-offset:1px;border-color:transparent}
+  .tipo-btns{display:flex;gap:8px;margin-bottom:12px}
+  .tipo-btns button{flex:1;background:transparent;border:1px solid var(--line);color:var(--muted);
+    font-family:var(--mono);font-size:11.5px;padding:8px 6px}
+  .tipo-btns button.on{background:var(--patina-dim);border-color:var(--patina);color:var(--patina)}
+  .hist{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}
+  .hist-item{padding:10px 0;border-top:1px solid var(--line)}
+  .hist-item:first-of-type{border-top:0;padding-top:0}
+  .hist-cab{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+  .hist-cab b{color:var(--paper);font-weight:500}
+  .hist-cab .frz{color:var(--ochre)}
+  .hist-resp{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
+  .hist-resp .s{color:var(--ochre)}
+  .hist-nota{font-size:12.5px;color:var(--paper);opacity:.85;margin-top:6px;line-height:1.5;
+    overflow-wrap:anywhere;white-space:pre-wrap}
 
   .alvo-row{display:grid;grid-template-columns:1fr 92px;gap:10px;align-items:center;
     padding:9px 0;border-top:1px solid var(--line)}
@@ -183,6 +201,7 @@
         <div class="eyebrow" style="margin-bottom:4px">Revisão — uma caixinha por vez</div>
         <p class="note" style="margin-bottom:6px">Quatro perguntas por empresa. Duas respostas “sim” congelam novos aportes ali — o dinheiro passa para a próxima caixinha atrasada, e nada é vendido.</p>
         <div id="revList"></div>
+        <button class="btn-ghost" style="margin-top:14px" onclick="copiarRevisoes()">Copiar histórico de revisões</button>
       </div>
     </section>
 
@@ -309,7 +328,7 @@
 </nav>
 
 <script>
-const VERSAO='2026.08.28';
+const VERSAO='2026.09.03';
 const KEY='carteira10anos:v3';
 const CAIXINHAS=[
   {id:'banco',nome:'Banco',ticker:'ITUB4'},
@@ -319,6 +338,7 @@ const CAIXINHAS=[
   {id:'energia',nome:'Energia',ticker:'EGIE3'}
 ];
 const RETENCAO={dividendo:0,jcp:.175,bdr:.30};
+const ROTULOS=['Lucro','Dívida','Distribuição','Estrutural'];
 const PERGUNTAS=[
   'O lucro caiu de forma relevante e que não parece pontual?',
   'A dívida cresceu a ponto de preocupar?',
@@ -566,17 +586,36 @@ function renderRevisao(){
 }
 function quiz(c){
   const r=(window._resp&&window._resp[c.id])||[null,null,null,null];
+  const nota=(window._nota&&window._nota[c.id])||'';
+  const tipo=(window._tipo&&window._tipo[c.id])||'anual';
   return `<div class="quiz">
+    <div class="tipo-btns">
+      <button class="${tipo==='anual'?'on':''}" onclick="setTipo('${c.id}','anual')">Revisão anual</button>
+      <button class="${tipo==='eventual'?'on':''}" onclick="setTipo('${c.id}','eventual')">Por fato relevante</button>
+    </div>
     ${PERGUNTAS.map((p,i)=>`<div class="q"><div class="q-txt">${p}</div>
       <div class="q-btns">
         <button class="${r[i]===true?'sel-sim':''}" onclick="resp('${c.id}',${i},true)">Sim</button>
         <button class="${r[i]===false?'sel-nao':''}" onclick="resp('${c.id}',${i},false)">Não</button>
       </div></div>`).join('')}
+    <div class="q">
+      <div class="q-txt">O que sustentou essas respostas — números, datas, fonte</div>
+      <textarea rows="4" placeholder="Ex.: 2T26 — lucro regulatório R$ 206,8 mi (−28,5% a/a); dívida líq./EBITDA 4,2x; payout 100% mantido." oninput="setNota('${c.id}',this.value)">${nota.replace(/</g,'&lt;')}</textarea>
+    </div>
     <button class="btn" style="margin-top:14px" onclick="fecharRev('${c.id}')">Concluir revisão</button>
     ${c.congelada?`<button class="btn-ghost" style="margin-top:9px" onclick="descongelar('${c.id}')">Descongelar ${c.ticker}</button>`:''}
-    ${c.historico.length?`<div class="note" style="margin-top:12px">Revisões anteriores: ${c.historico.map(h=>dbr(h.data)+' ('+h.sim+' sim)').join(' · ')}</div>`:''}
+    ${c.historico.length?`<div class="hist">
+      <div class="eyebrow" style="margin-bottom:10px">Revisões anteriores</div>
+      ${[...c.historico].reverse().map(h=>`<div class="hist-item">
+        <div class="hist-cab"><b>${dbr(h.data)}</b> · ${h.tipo||'anual'} · ${h.sim} sim${h.congelou?' <span class="frz">→ congelada</span>':''}</div>
+        <div class="hist-resp">${(h.respostas||[]).map((v,i)=>`${ROTULOS[i]}: <span class="${v?'s':''}">${v?'Sim':'Não'}</span>`).join(' · ')}</div>
+        ${h.nota?`<div class="hist-nota">${h.nota.replace(/</g,'&lt;')}</div>`:''}
+      </div>`).join('')}
+    </div>`:''}
   </div>`;
 }
+function setNota(id,v){ window._nota=window._nota||{}; window._nota[id]=v; }
+function setTipo(id,t){ window._tipo=window._tipo||{}; window._tipo[id]=t; render(); }
 function abrirRev(id){
   abertaRev = abertaRev===id?null:id;
   window._resp=window._resp||{}; if(!window._resp[id])window._resp[id]=[null,null,null,null];
@@ -588,10 +627,37 @@ function fecharRev(id){
   const r=(window._resp&&window._resp[id])||[];
   if(r.length<4||r.some(x=>x===null)){ toast('Responda as quatro'); return; }
   const sim=r.filter(Boolean).length;
-  c.revisao=hoje(); c.historico.push({data:hoje(),sim});
-  c.congelada = sim>=2;
+  const congelou=sim>=2;
+  c.revisao=hoje();
+  c.historico.push({
+    data:hoje(),
+    tipo:(window._tipo&&window._tipo[id])||'anual',
+    respostas:r.slice(0,4),
+    sim, congelou,
+    nota:((window._nota&&window._nota[id])||'').trim()
+  });
+  c.congelada = congelou;
   abertaRev=null; window._resp[id]=null;
+  if(window._nota)window._nota[id]='';
+  if(window._tipo)window._tipo[id]='anual';
   salvar(sim>=2?`${c.ticker} congelada — ${sim} sinais`:`${c.ticker} revisada — segue na fila`);
+}
+function copiarRevisoes(){
+  const linhas=[];
+  S.nucleo.forEach(c=>{
+    if(!c.historico||!c.historico.length)return;
+    linhas.push(`### ${c.ticker} — ${c.nome}${c.congelada?' (CONGELADA)':''}`);
+    c.historico.forEach(h=>{
+      linhas.push(`${dbr(h.data)} · ${h.tipo||'anual'} · ${h.sim} sim${h.congelou?' -> congelada':''}`);
+      (h.respostas||[]).forEach((v,i)=>linhas.push(`  ${ROTULOS[i]}: ${v?'Sim':'Não'}`));
+      if(h.nota)linhas.push(`  ${h.nota}`);
+    });
+    linhas.push('');
+  });
+  if(!linhas.length){ toast('Nenhuma revisão registrada ainda'); return; }
+  const txt=linhas.join('\n');
+  try{ navigator.clipboard.writeText(txt).then(()=>toast('Histórico copiado')).catch(()=>alert(txt)); }
+  catch(e){ alert(txt); }
 }
 function descongelar(id){
   const c=S.nucleo.find(x=>x.id===id);
