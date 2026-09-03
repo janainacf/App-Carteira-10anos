@@ -26,11 +26,11 @@
   body{background:var(--ink);color:var(--paper);font-family:var(--sans);
     font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:88px;
     text-size-adjust:100%;-webkit-text-size-adjust:100%}
-  .wrap{width:100%;max-width:560px;margin:0 auto;padding:18px 14px 8px}
+  .wrap{max-width:560px;margin:0 auto;padding:18px 14px 8px}
   @media (max-width:400px){ .card,.verdict{padding:15px 14px}
     .verdict-line{font-size:29px} h2{font-size:19px} }
   .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
-    text-transform:uppercase;color:var(--muted);overflow-wrap:anywhere}
+    text-transform:uppercase;color:var(--muted)}
   .card{background:var(--panel);border:1px solid var(--line);
     border-radius:14px;padding:18px;margin-bottom:14px}
   .note{font-size:12.5px;color:var(--muted);line-height:1.55;margin-top:7px}
@@ -45,11 +45,10 @@
   .verdict-sub b{color:var(--paper);font-weight:500}
 
   .rank{display:flex;flex-direction:column;gap:13px;margin-top:6px}
-  .row-top{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:4px 10px}
-  .row-name{min-width:0}
-  .row-name{font-size:14px;font-weight:500}
+  .row-name{font-size:14px;font-weight:500;min-width:0;overflow-wrap:anywhere}
   .row-name span{color:var(--muted);font-family:var(--mono);font-size:11px;margin-left:6px}
-  .row-pct{font-family:var(--mono);font-size:12.5px;color:var(--muted);white-space:normal;text-align:right;overflow-wrap:anywhere}
+  .row-meta{font-family:var(--mono);font-size:11.5px;color:var(--muted);
+    margin-top:6px;overflow-wrap:anywhere;line-height:1.5}
   .track{position:relative;height:7px;background:#0E141B;border-radius:4px;margin-top:7px;border:1px solid #1A222C}
   .fill{height:100%;background:var(--line);border-radius:3px;width:0;transition:width .5s cubic-bezier(.2,.7,.3,1)}
   .lead .fill{background:var(--patina)}
@@ -70,7 +69,7 @@
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .grid3{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:8px}
   .grid2>*,.grid3>*,.alvo-row>*{min-width:0}
-  @media (max-width:360px){ .grid3{grid-template-columns:1fr 1fr;gap:8px}
+  @media (max-width:520px){ .grid3{grid-template-columns:1fr 1fr;gap:9px}
     .grid3>div:first-child{grid-column:1 / -1} }
 
   button{font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;
@@ -86,7 +85,7 @@
   .pos-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}
   .pos-title{min-width:0;overflow-wrap:anywhere}
   .pos-title{font-size:14px;font-weight:500}
-  .pos-val{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .pos-val{font-family:var(--mono);font-size:13px;color:var(--muted);white-space:nowrap;flex:0 0 auto}
 
   .log{font-family:var(--mono);font-size:12.5px}
   .log-item{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
@@ -97,7 +96,7 @@
   .stat-row{display:flex;justify-content:space-between;padding:8px 0;font-size:13.5px;gap:12px}
   .stat-row>span{min-width:0;overflow-wrap:anywhere}
   .stat-row+.stat-row{border-top:1px solid var(--line)}
-  .stat-row b{font-family:var(--mono);font-weight:500;white-space:nowrap}
+  .stat-row b{font-family:var(--mono);font-weight:500;text-align:right;overflow-wrap:anywhere}
   .flag{background:var(--ochre-dim);border:1px solid var(--ochre);color:var(--ochre);
     border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.5;margin-bottom:14px}
 
@@ -135,40 +134,12 @@
   nav{position:fixed;bottom:0;left:0;right:0;background:rgba(20,26,34,.96);
     backdrop-filter:blur(12px);border-top:1px solid var(--line);
     display:flex;padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
-  nav button{flex:1;min-width:0;background:none;border:0;color:var(--muted);font-size:11.5px;
+  nav button{flex:1;background:none;border:0;color:var(--muted);font-size:11.5px;
     font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:9px 2px}
   nav button.on{color:var(--patina)}
   .hide{display:none}
   h2{font-family:var(--display);font-weight:600;font-size:21px;letter-spacing:-.01em;margin-bottom:3px}
-  .h2sub{font-size:13px;color:var(--muted);margin-bottom:15px;line-height:1.5;text-align:justify;hyphens:auto}
-  /* ---------- ajustes de leitura e responsividade ---------- */
-  .note,.empty,.flag,.verdict-sub,.q-txt{hyphens:auto;overflow-wrap:anywhere}
-  .note,.empty,.flag,.verdict-sub,.q-txt{text-align:justify}
-  .verdict-line{font-size:clamp(28px,8vw,34px);overflow-wrap:anywhere}
-  @media (max-width:480px){
-    .wrap{padding-left:12px;padding-right:12px}
-    .card{padding:16px 14px}
-    .verdict{padding:19px 16px}
-    .row-top{grid-template-columns:1fr;gap:2px}
-    .row-pct{text-align:left;font-size:11.5px}
-    .row-name{font-size:14px}
-    .row-name span{font-size:10.5px;margin-left:5px}
-    .alvo-row{grid-template-columns:minmax(0,1fr) 82px;gap:8px}
-    .pos-head{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;align-items:start}
-    .pos-val{font-size:12px;white-space:normal;overflow-wrap:anywhere;text-align:left}
-    .stat-row{align-items:flex-start}
-    .stat-row b{font-size:12px}
-    label{line-height:1.35}
-  }
-  @media (max-width:360px){
-    .wrap{padding-left:10px;padding-right:10px}
-    .card{padding:14px 12px}
-    .verdict{padding:17px 14px}
-    .verdict-line{font-size:27px}
-    .row-pct{font-size:11px}
-    .stat-row{gap:8px}
-    .stat-row b{font-size:11.5px}
-  }
+  .h2sub{font-size:13px;color:var(--muted);margin-bottom:15px;line-height:1.5}
   @media (prefers-reduced-motion:reduce){.fill,#toast,input{transition:none}}
 </style>
 
@@ -288,7 +259,8 @@
       </div>
 
       <div class="card">
-        <div class="eyebrow" style="margin-bottom:6px">Alvo de cada caixinha</div>
+        <div class="eyebrow" style="margin-bottom:6px">Alvo de cada caixinha — % <em>do núcleo</em></div>
+        <p class="note" style="margin-bottom:12px">Estes 20% são fatias <b>do núcleo</b>, não da carteira toda — por isso somam 100 aqui dentro. <span id="equiv"></span></p>
         <p class="note" style="margin-bottom:12px">Iguais em 20% significa não apostar em qual das cinco vai melhor nos próximos dez anos. Mudar isso é fazer uma previsão — dá para fazer, mas saiba que é o que está fazendo.</p>
         <div id="alvos"></div>
         <div class="soma" id="somaAlvos"></div>
@@ -296,7 +268,7 @@
       </div>
 
       <div class="card">
-        <label for="cfgTeto">Teto do satélite, em % da carteira toda</label>
+        <label for="cfgTeto">Teto do satélite — % <em>da carteira toda</em></label>
         <input id="cfgTeto" type="number" inputmode="decimal" step="1" min="0" max="50">
         <p class="note" id="tetoNota"></p>
         <div class="eyebrow" style="margin:18px 0 6px">Papéis do satélite</div>
@@ -505,15 +477,13 @@ function render(){
   document.getElementById('rank').innerHTML=ordenado.map(c=>{
     const lead=c.id===alvoCx.id&&!c.congelada;
     return `<div class="${lead?'lead':''}${c.congelada?' frozen':''}">
-      <div class="row-top">
-        <div class="row-name">${c.nome}<span>${c.ticker}</span></div>
-        <div class="row-pct">${pct(c.pctNucleo)} de ${pct(c.alvoNorm)} · ${brl(c.valor)}</div>
-      </div>
+      <div class="row-name">${c.nome}<span>${c.ticker}</span></div>
       <div class="track">
         <div class="fill" style="width:${Math.min(100,c.pctNucleo/maxPct*100).toFixed(1)}%"></div>
         <div class="target" style="left:${Math.min(99,c.alvoNorm/maxPct*100).toFixed(1)}%"></div>
       </div>
-      <div class="gap">${c.congelada?'congelada — não recebe aporte'
+      <div class="row-meta">${pct(c.pctNucleo)} de ${pct(c.alvoNorm)} · ${brl(c.valor)}<br>${
+        c.congelada?'congelada — não recebe aporte'
         :(k.vN===0?'sem posição':(c.paraAlvo>0?'faltam '+brl(c.paraAlvo)+' para o alvo':'no alvo ou acima'))}</div>
     </div>`;
   }).join('');
@@ -552,7 +522,9 @@ function render(){
   document.getElementById('tetoLbl').textContent=S.config.teto;
   const t=+S.config.teto||0;
   document.getElementById('tetoNota').innerHTML=
-    `Não existe número oficial. O que ele significa na prática: se o satélite inteiro cair pela metade, você perde <b style="color:var(--paper)">${pct(t/2)}</b> da carteira toda. Escolha o número por essa frase, não por convenção.`;
+    `<b style="color:var(--paper)">É um limite, não uma meta mensal.</b> Todo o aporte do mês vai para o núcleo; o satélite só recebe quando você decidir, e nunca acima deste teto.<br><br>Não existe número oficial. Na prática: se o satélite inteiro cair pela metade, você perde <b style="color:var(--paper)">${pct(t/2)}</b> da carteira toda. Escolha por essa frase, não por convenção.`;
+  const eq=document.getElementById('equiv');
+  if(eq) eq.innerHTML=`Com o teto de ${S.config.teto}%, o núcleo ocupa ${pct(100-t)} da carteira — então uma caixinha de 20% equivale a cerca de <b style="color:var(--paper)">${pct(0.2*(100-t))}</b> do total.`;
 }
 
 function renderAlvos(k){
