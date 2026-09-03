@@ -297,8 +297,11 @@
 
       <div class="card">
         <div class="eyebrow" style="margin-bottom:6px">Cópia de segurança</div>
-        <p class="note" style="margin-bottom:12px">Uma vez por mês, depois de registrar a compra, copie este texto e guarde onde quiser — e-mail para você mesma serve. É o que garante que dez anos de registro não dependam de um servidor.</p>
-        <button class="btn" onclick="exportar()">Mostrar e copiar meus dados</button>
+        <p class="note" style="margin-bottom:12px">Depois de registrar a compra do mês, baixe o arquivo e guarde fora do celular — e-mail para você mesma, nuvem, o que preferir. Navegador de celular às vezes limpa dados de site sozinho; o arquivo é a única cópia que não depende dele.</p>
+        <button class="btn" onclick="baixarBackup()">Baixar arquivo de segurança</button>
+        <div style="margin-top:10px"><button class="btn-ghost" onclick="document.getElementById('arqBackup').click()">Restaurar de um arquivo</button></div>
+        <input type="file" id="arqBackup" accept=".json,application/json" style="display:none" onchange="importarArquivo(this)">
+        <div style="margin-top:16px"><button class="btn-ghost" onclick="exportar()">Mostrar e copiar como texto</button></div>
         <textarea id="backup" class="hide" rows="6" style="width:100%;margin-top:11px;background:#111820;
           border:1px solid var(--line);color:var(--paper);border-radius:9px;padding:11px;
           font-family:var(--mono);font-size:11px;resize:vertical"></textarea>
@@ -310,6 +313,7 @@
         <div class="eyebrow" style="margin-bottom:10px">Dados</div>
         <div class="stat-row" style="padding-top:0"><span>Estado do salvamento</span><b id="estado" style="color:var(--patina)">salvo</b></div>
         <div class="stat-row"><span>Versão do app</span><b id="versao">—</b></div>
+        <div class="stat-row"><span>Última gravação</span><b id="ultimoSalvo">—</b></div>
         <p class="empty" style="margin:12px 0">Fica salvo neste aparelho, neste navegador. Apagar não tem volta.</p>
         <button class="btn-danger" onclick="zerar()">Apagar todos os dados</button>
       </div>
@@ -318,7 +322,7 @@
 </div>
 
 <div id="toast">Salvo</div>
-<div id="falha" onclick="gravar()"></div>
+<div id="falha" onclick="if(abriuVazio){abriuVazio=false;avisoFalha(false);}else{gravar();}"></div>
 
 <nav>
   <button id="n-mes" class="on" onclick="go('mes')">Mês</button>
@@ -328,7 +332,7 @@
 </nav>
 
 <script>
-const VERSAO='2026.09.03';
+const VERSAO='2026.09.03b';
 const KEY='carteira10anos:v3';
 const CAIXINHAS=[
   {id:'banco',nome:'Banco',ticker:'ITUB4'},
@@ -368,18 +372,52 @@ function novo(){
    como arquivo solto no navegador, usa o do próprio navegador. */
 const temStorageClaude = typeof window.storage!=='undefined' && window.storage
   && typeof window.storage.get==='function';
+const DB='carteira10anos', LOJA='dados';
+function abrirDB(){ return new Promise((ok,err)=>{
+  if(!('indexedDB' in window))return err(new Error('sem indexedDB'));
+  const r=indexedDB.open(DB,1);
+  r.onupgradeneeded=()=>{ if(!r.result.objectStoreNames.contains(LOJA))r.result.createObjectStore(LOJA); };
+  r.onsuccess=()=>ok(r.result); r.onerror=()=>err(r.error);
+});}
+async function idbLer(){ const db=await abrirDB(); return new Promise((ok,err)=>{
+  const t=db.transaction(LOJA,'readonly').objectStore(LOJA).get(KEY);
+  t.onsuccess=()=>ok(t.result||null); t.onerror=()=>err(t.error); });}
+async function idbGravar(v){ const db=await abrirDB(); return new Promise((ok,err)=>{
+  const t=db.transaction(LOJA,'readwrite').objectStore(LOJA).put(v,KEY);
+  t.onsuccess=()=>ok(); t.onerror=()=>err(t.error); });}
+async function idbApagar(){ const db=await abrirDB(); return new Promise((ok,err)=>{
+  const t=db.transaction(LOJA,'readwrite').objectStore(LOJA).delete(KEY);
+  t.onsuccess=()=>ok(); t.onerror=()=>err(t.error); });}
+
+/* quanto conteúdo real tem um texto salvo — serve para escolher a gaveta mais completa */
+function peso(txt){
+  try{ const d=JSON.parse(txt);
+    return (d.compras?d.compras.length:0)*10 + (d.proventos?d.proventos.length:0)*10
+         + (d.nucleo||[]).reduce((a,c)=>a+((+c.qtd>0)?2:0)+((+c.preco>0)?1:0),0)
+         + (d.nucleo||[]).reduce((a,c)=>a+((c.historico||[]).length*5),0);
+  }catch(e){ return -1; }
+}
+
 const COFRE={
   async ler(){
     if(temStorageClaude){ const r=await window.storage.get(KEY); return r&&r.value?r.value:null; }
-    return window.localStorage.getItem(KEY);
+    let a=null,b=null;
+    try{ a=window.localStorage.getItem(KEY); }catch(e){}
+    try{ b=await idbLer(); }catch(e){}
+    if(a&&b) return peso(b)>peso(a)?b:a;
+    return a||b||null;
   },
   async gravar(txt){
     if(temStorageClaude){ await window.storage.set(KEY,txt); return; }
-    window.localStorage.setItem(KEY,txt);
+    let deu=false;
+    try{ window.localStorage.setItem(KEY,txt); deu=true; }catch(e){}
+    try{ await idbGravar(txt); deu=true; }catch(e){}
+    if(!deu) throw new Error('nenhuma gaveta aceitou gravar');
   },
   async apagar(){
     if(temStorageClaude){ await window.storage.delete(KEY); return; }
-    window.localStorage.removeItem(KEY);
+    try{ window.localStorage.removeItem(KEY); }catch(e){}
+    try{ await idbApagar(); }catch(e){}
   }
 };
 
@@ -415,6 +453,7 @@ async function gravar(tentativa=0){
   clearTimeout(timerSalvar);
   setEstado(tentativa?'retry':'salvando');
   try{
+    S.config.ultimoSalvo=new Date().toISOString();
     await COFRE.gravar(JSON.stringify(S));
     if(falhou){ falhou=false; avisoFalha(false); }
     setEstado('salvo');
@@ -428,10 +467,14 @@ async function gravar(tentativa=0){
   }
 }
 
+let abriuVazio=false;
 async function carregar(){
-  try{ const t=await COFRE.ler(); S=t?JSON.parse(t):novo(); }
-  catch(e){ S=novo(); }
+  try{ if(navigator.storage&&navigator.storage.persist) await navigator.storage.persist(); }catch(e){}
+  let bruto=null;
+  try{ bruto=await COFRE.ler(); }catch(e){ console.warn('leitura falhou',e); }
+  try{ S=bruto?JSON.parse(bruto):novo(); }catch(e){ S=novo(); }
   if(!S||!S.config) S=novo();
+  abriuVazio = !bruto;
   S.nucleo.forEach(c=>{ if(!c.historico)c.historico=[]; if(c.congelada===undefined)c.congelada=false;
                         if(typeof c.alvo!=='number')c.alvo=20; });
   document.getElementById('boot').classList.add('hide');
@@ -439,6 +482,7 @@ async function carregar(){
   document.getElementById('cData').value=hoje();
   document.getElementById('pData').value=hoje();
   bind(); render(); preencherPreco();
+  if(abriuVazio) avisoFalha(true,'<b>Abri sem nenhum dado salvo.</b> Se você já tinha registros neste aparelho, <u>não mexa em nada ainda</u>: vá em Ajustes › Cópia de segurança e restaure antes. Toque aqui para dispensar.');
 }
 
 /* ---------- cálculo ---------- */
@@ -540,6 +584,9 @@ function render(){
   document.getElementById('sSat').textContent=k.total>0?`${pct(k.pctSat)} de ${S.config.teto}%`:'—';
   document.getElementById('sSatAp').textContent=k.apTotal>0?`${pct(k.pctSatAportado)} de ${S.config.teto}%`:'—';
 
+  const us=document.getElementById('ultimoSalvo');
+  if(us){ const t=S.config.ultimoSalvo;
+    us.textContent = t ? new Date(t).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}) : '—'; }
   renderRevisao(); renderEditores(); renderAlvos(k); renderLogs(); renderSelects();
   document.getElementById('tetoLbl').textContent=S.config.teto;
   const t=+S.config.teto||0;
@@ -771,6 +818,25 @@ function delCompra(i){
 function delProvento(i){ S.proventos.splice(i,1); salvar('Provento excluído'); }
 function addSat(){ S.satelite.push({id:'s'+Date.now(),ticker:'',qtd:0,preco:0}); salvar('Linha nova — digite o ticker'); }
 function delSat(i){ const t=S.satelite[i].ticker||'linha'; S.satelite.splice(i,1); salvar(`${t} removido`); }
+function baixarBackup(){
+  try{
+    const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='carteira-'+hoje()+'.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+    toast('Arquivo baixado');
+  }catch(e){ toast('Não consegui gerar o arquivo'); }
+}
+function importarArquivo(input){
+  const f=input.files&&input.files[0]; if(!f)return;
+  const fr=new FileReader();
+  fr.onload=()=>{ document.getElementById('backup').classList.remove('hide');
+    document.getElementById('backup').value=fr.result; importar(); input.value=''; };
+  fr.onerror=()=>{ toast('Não consegui ler o arquivo'); input.value=''; };
+  fr.readAsText(f);
+}
 function exportar(){
   const ta=document.getElementById('backup');
   ta.classList.remove('hide');
